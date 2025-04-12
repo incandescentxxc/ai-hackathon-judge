@@ -33,6 +33,7 @@ submission_results.json
 project_data.json
 config.py
 curl.txt
+example.html
 
 # Logs
 *.log 

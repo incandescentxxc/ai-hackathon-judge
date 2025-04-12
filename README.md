@@ -148,6 +148,21 @@ python batch_submit.py -a
 python batch_submit.py -r 4 -c 5
 ```
 
+### Testing the HTML Parser
+
+You can test the HTML parser directly from the CLI:
+
+```bash
+# Test the parser on the example.html file
+python cli.py test parser
+
+# Test the parser on a specific URL
+python cli.py test parser -u https://hackatopia.devpost.com/submissions/123456-project-name/judging
+
+# Save the parsed results to a file
+python cli.py test parser -u https://hackatopia.devpost.com/submissions/123456-project-name/judging -o parsed_result.json
+```
+
 ## Project Architecture
 
 The AI Judge system follows a modular architecture:
@@ -176,3 +191,46 @@ When submitting a form, the system will:
 - Generate ratings (either randomly or using AI)
 - Submit the form with these ratings
 - Return the response
+
+## HTML Parser
+
+The system includes a robust HTML parser (`src/parser.py`) designed to extract critical project information from Devpost submission pages. The parser employs multiple extraction strategies to ensure reliable data collection even when project pages have different structures:
+
+### Title and Description Extraction
+
+The parser uses the following strategies to find the project title:
+1. Searches for non-empty h1 tags in the document
+2. Falls back to meta tags (og:title, twitter:title) if h1 tags are empty or missing
+3. Can handle projects with different HTML structures and formatting
+
+For project descriptions, the parser:
+1. Looks for italic tags within h3.subheader elements after the title
+2. Falls back to meta description tags (og:description, description, twitter:description)
+3. Uses progressive fallback strategies for different HTML structures
+
+### Project Section Extraction
+
+The parser also extracts standard project sections like:
+- Inspiration
+- What it does
+- How we built it
+- Challenges we ran into
+- Accomplishments that we're proud of
+- What we learned
+- What's next for [project]
+
+The system can handle both complete projects with all sections and minimal projects with just a title and description.
+
+### Testing the Parser
+
+You can test the HTML parser using the included test script:
+
+```bash
+python test_html_parser.py
+```
+
+Or test with a specific HTML file:
+
+```bash
+python test_html_parser.py path/to/html_file.html
+```

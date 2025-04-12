@@ -52,8 +52,10 @@ def main():
     
     # Test command
     test_parser = subparsers.add_parser('test', help='Run test scripts')
-    test_parser.add_argument('script', choices=['random', 'ai'], help='Test script to run')
+    test_parser.add_argument('script', choices=['random', 'ai', 'parser'], help='Test script to run')
     test_parser.add_argument('-t', '--test-mode', action='store_true', help='Enable test mode to see additional debug info')
+    test_parser.add_argument('-u', '--url', help='URL to test (for parser tests)')
+    test_parser.add_argument('-o', '--output', help='Output file for parser test results')
     
     # Parse arguments
     args = parser.parse_args()
@@ -151,6 +153,19 @@ def main():
         elif args.script == 'ai':
             from test_ai_judge import test_ai_judge
             test_ai_judge(test_mode=args.test_mode)
+        elif args.script == 'parser':
+            if args.url:
+                # Test parser on a specific URL
+                from test_html_parser import test_url_parser
+                result = test_url_parser(args.url)
+                if args.output and result:
+                    with open(args.output, 'w') as outfile:
+                        json.dump(result, outfile, indent=2)
+                    print(f"Parser test results saved to {args.output}")
+            else:
+                # Run the standard parser test on example.html
+                from test_html_parser import test_html_parser
+                test_html_parser()
         return 0
         
     else:
