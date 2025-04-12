@@ -1,6 +1,6 @@
 # AI-Judge
 
-A tool for automating the judging process for Devpost hackathon submissions.
+A tool for automating the judging process for Devpost hackathon submissions. Created with the collaboration of @Cursor.
 
 ## Overview
 
