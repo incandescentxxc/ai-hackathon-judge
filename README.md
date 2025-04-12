@@ -26,7 +26,7 @@ This tool automates the process of submitting judge ratings for Devpost hackatho
 
 3. Install dependencies:
    ```
-   pip install requests bs4
+   pip install -r requirements.txt
    ```
 
 4. Set up your authentication configuration:
@@ -93,6 +93,7 @@ python test_random_ratings.py
 - `config.py`: Your personal authentication details (not included in repository)
 - `extract_header_cookie.py`: Helper script to extract headers and cookies from a curl command
 - `curl.txt`: File where you paste your curl command (not included in repository)
+- `requirements.txt`: List of Python package dependencies
 
 ## Authentication
 
