@@ -31,8 +31,8 @@ build/
 # Project specific files
 submission_results.json
 project_data.json
-config.py  # User-specific configuration with authentication details
-curl.txt   # Contains curl command with authentication details
+config.py
+curl.txt
 
 # Logs
 *.log 

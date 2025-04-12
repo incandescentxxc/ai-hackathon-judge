@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
-Script to extract headers and cookies from a curl command.
-
-Instructions:
-1. Log in to your Devpost account in a browser
-2. Open developer tools (F12 or right-click > Inspect)
-3. Go to the Network tab and refresh the page
-4. Right-click on any document request and select "Copy as cURL"
-5. Paste the curl command into a file named curl.txt
-6. Run this script: python extract_header_cookie.py
-7. The script will create/update config.py with the extracted headers and cookies
+Module for extracting headers and cookies from curl commands.
+Used to simplify authentication setup.
 """
 
 import re
 import os
+import shlex
 import sys
 import json
-import shlex
 
 def extract_from_curl(curl_command):
-    """Extract headers and cookies from a curl command."""
+    """
+    Extract headers and cookies from a curl command.
+    
+    Args:
+        curl_command (str): The curl command to parse
+        
+    Returns:
+        tuple: (headers, cookies, url) extracted from the command
+    """
     # Split the curl command into tokens
     try:
         tokens = shlex.split(curl_command)
@@ -76,8 +76,19 @@ def extract_from_curl(curl_command):
     
     return headers, cookies, url
 
-def generate_config(headers, cookies, url):
-    """Generate a config.py file with the extracted headers and cookies."""
+def generate_config(headers, cookies, url, output_file='config.py'):
+    """
+    Generate a config.py file with the extracted headers and cookies.
+    
+    Args:
+        headers (dict): HTTP headers
+        cookies (dict): Cookies for authentication
+        url (str): URL from which to extract the base URL
+        output_file (str): Path to the output config file
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
     if not headers and not cookies:
         print("Error: No headers or cookies extracted.")
         return False
@@ -112,63 +123,78 @@ def generate_config(headers, cookies, url):
     if base_url:
         lines.append('# Base URL for the Devpost hackathon')
         lines.append(f"BASE_URL = '{base_url}'")
+        lines.append('')
     
-    # Write to config.py
-    with open('config.py', 'w') as f:
+    # Add placeholders for OpenAI configuration
+    lines.append('# OpenAI API configuration (add your key here)')
+    lines.append("OPENAI_API_KEY = ''  # Your OpenAI API key")
+    lines.append("OPENAI_MODEL = 'gpt-3.5-turbo'  # Model to use for AI judging")
+    
+    # Write to config file
+    with open(output_file, 'w') as f:
         f.write('\n'.join(lines))
     
     return True
 
-def main():
-    print("Header and Cookie Extractor for AI-Judge")
-    print("=======================================")
+def extract_from_file(curl_file='curl.txt', config_file='config.py'):
+    """
+    Extract headers and cookies from a file containing a curl command and generate a config file.
     
-    # Check if curl.txt exists
-    if not os.path.exists('curl.txt'):
-        print("Error: curl.txt file not found.")
-        print("Please create a curl.txt file with your curl command.")
+    Args:
+        curl_file (str): Path to the file containing the curl command
+        config_file (str): Path to the output config file
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    # Check if curl file exists
+    if not os.path.exists(curl_file):
+        print(f"Error: {curl_file} file not found.")
+        print(f"Please create a {curl_file} file with your curl command.")
         print("Instructions:")
         print("1. Log in to your Devpost account")
         print("2. Open developer tools (F12)")
         print("3. Right-click on a request and select 'Copy as cURL'")
-        print("4. Paste the command into a file named curl.txt")
-        return
+        print(f"4. Paste the command into a file named {curl_file}")
+        return False
     
-    # Read the curl command from curl.txt
-    with open('curl.txt', 'r') as f:
+    # Read the curl command from the file
+    with open(curl_file, 'r') as f:
         curl_command = f.read().strip()
     
     if not curl_command:
-        print("Error: curl.txt is empty.")
-        return
+        print(f"Error: {curl_file} is empty.")
+        return False
     
     # Extract headers and cookies
     headers, cookies, url = extract_from_curl(curl_command)
     
-    if headers or cookies:
-        # Generate config.py
-        if generate_config(headers, cookies, url):
-            print("\nSuccessfully created config.py with:")
-            print(f"- {len(headers)} headers")
-            print(f"- {len(cookies)} cookies")
-            
-            # Check for important cookies
-            important_cookies = ['jwt', 'remember_user_token', '_devpost']
-            missing = [cookie for cookie in important_cookies if cookie not in cookies]
-            
-            if missing:
-                print("\nWarning: Some important cookies are missing:")
-                for cookie in missing:
-                    print(f" - {cookie}")
-                print("Authentication may not work correctly without these cookies.")
-            else:
-                print("\nAll important cookies are present!")
-            
-            print("\nYou're all set! You can now use the judge.py and batch_submit.py scripts.")
-    else:
+    if not headers and not cookies:
         print("Error: Failed to extract headers or cookies from the curl command.")
         print("Please make sure the curl command is valid and contains cookies.")
         print("Look for either a '-H 'cookie:...' or a '-b '...' parameter in the curl command.")
-
-if __name__ == "__main__":
-    main() 
+        return False
+    
+    # Generate config file
+    success = generate_config(headers, cookies, url, config_file)
+    
+    if success:
+        print(f"\nSuccessfully created {config_file} with:")
+        print(f"- {len(headers)} headers")
+        print(f"- {len(cookies)} cookies")
+        
+        # Check for important cookies
+        important_cookies = ['jwt', 'remember_user_token', '_devpost']
+        missing = [cookie for cookie in important_cookies if cookie not in cookies]
+        
+        if missing:
+            print("\nWarning: Some important cookies are missing:")
+            for cookie in missing:
+                print(f" - {cookie}")
+            print("Authentication may not work correctly without these cookies.")
+        else:
+            print("\nAll important cookies are present!")
+        
+        return True
+    
+    return False 

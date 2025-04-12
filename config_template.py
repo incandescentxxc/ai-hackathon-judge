@@ -31,4 +31,8 @@ COOKIES = {
 }
 
 # Base URL for the Devpost hackathon
-BASE_URL = 'https://hackatopia.devpost.com' 
+BASE_URL = 'https://hackatopia.devpost.com'
+
+# OpenAI API Configuration
+OPENAI_API_KEY = 'your_openai_api_key_here'
+OPENAI_MODEL = 'gpt-4o'  # You can use gpt-3.5-turbo for a more economical option 

@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-from judge import submit_form
+"""
+Batch submission script for processing multiple projects.
+"""
+
+from src.main import process_uri
 import json
 import time
 import argparse
 
-def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False):
+def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False, ai_mode=False):
     """
     Submit forms for multiple projects in batch
     
@@ -13,6 +17,7 @@ def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False):
         rating (int): Rating to apply to all criteria (default: 3)
         delay (int): Delay in seconds between requests (default: 2)
         auto_mode (bool): Use automatic random ratings (2-4) if True (default: False)
+        ai_mode (bool): Use AI-generated ratings if True (default: False)
         
     Returns:
         dict: Results of all submissions
@@ -22,12 +27,15 @@ def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False):
     for i, uri in enumerate(uris, 1):
         print(f"\nProcessing {i}/{len(uris)}: {uri}")
         
-        # Submit the form
-        if auto_mode:
+        # Submit the form using process_uri
+        if ai_mode:
+            print("Using AI to generate ratings based on project content...")
+            result = process_uri(uri, use_ai=True)
+        elif auto_mode:
             print("Using automatic random ratings (2-4)...")
-            result = submit_form(uri, ratings=None)  # None triggers random ratings
+            result = process_uri(uri, rating=None)  # None triggers random ratings
         else:
-            result = submit_form(uri, ratings=rating)
+            result = process_uri(uri, rating=rating)
             
         results[uri] = result
         
@@ -54,10 +62,17 @@ def main():
                         help='Number of URIs to process (default: all)')
     parser.add_argument('-a', '--auto', action='store_true', 
                         help='Use automatic random ratings (2-4) instead of fixed rating')
+    parser.add_argument('-ai', '--ai', action='store_true', 
+                        help='Use AI to generate ratings based on project content')
     args = parser.parse_args()
     
-    # Validate rating if not in auto mode
-    if not args.auto and (args.rating < 1 or args.rating > 5):
+    # Check for conflicting modes
+    if args.auto and args.ai:
+        print("Error: Cannot use both --auto and --ai modes simultaneously. Please choose one.")
+        return
+    
+    # Validate rating if not in auto or AI mode
+    if not args.auto and not args.ai and (args.rating < 1 or args.rating > 5):
         print(f"Invalid rating: {args.rating}. Must be between 1 and 5.")
         return
     
@@ -69,7 +84,9 @@ def main():
     if args.count is not None and args.count > 0:
         uris = uris[:args.count]
     
-    if args.auto:
+    if args.ai:
+        print(f"Preparing to submit forms for {len(uris)} projects with AI-GENERATED ratings")
+    elif args.auto:
         print(f"Preparing to submit forms for {len(uris)} projects with AUTOMATIC RANDOM ratings (2-4)")
     else:
         print(f"Preparing to submit forms for {len(uris)} projects with rating {args.rating}")
@@ -81,7 +98,8 @@ def main():
         return
     
     # Submit forms
-    results = batch_submit_forms(uris, rating=args.rating, delay=args.delay, auto_mode=args.auto)
+    results = batch_submit_forms(uris, rating=args.rating, delay=args.delay, 
+                               auto_mode=args.auto, ai_mode=args.ai)
     
     # Count successes and failures
     successes = sum(1 for result in results.values() if result.get('success', False))
