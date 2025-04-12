@@ -1,0 +1,38 @@
+# Python virtual environments
+venv/
+env/
+ENV/
+.env
+.venv
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific files
+submission_results.json
+project_data.json
+config.py  # User-specific configuration with authentication details
+curl.txt   # Contains curl command with authentication details
+
+# Logs
+*.log 
