@@ -8,7 +8,7 @@ import json
 import time
 import argparse
 
-def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False, ai_mode=False):
+def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False, ai_mode=False, test_mode=False):
     """
     Submit forms for multiple projects in batch
     
@@ -18,6 +18,7 @@ def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False, ai_mode=False):
         delay (int): Delay in seconds between requests (default: 2)
         auto_mode (bool): Use automatic random ratings (2-4) if True (default: False)
         ai_mode (bool): Use AI-generated ratings if True (default: False)
+        test_mode (bool): If True, print additional debug info including OpenAI prompt (default: False)
         
     Returns:
         dict: Results of all submissions
@@ -30,7 +31,7 @@ def batch_submit_forms(uris, rating=3, delay=2, auto_mode=False, ai_mode=False):
         # Submit the form using process_uri
         if ai_mode:
             print("Using AI to generate ratings based on project content...")
-            result = process_uri(uri, use_ai=True)
+            result = process_uri(uri, use_ai=True, test_mode=test_mode)
         elif auto_mode:
             print("Using automatic random ratings (2-4)...")
             result = process_uri(uri, rating=None)  # None triggers random ratings
@@ -64,6 +65,8 @@ def main():
                         help='Use automatic random ratings (2-4) instead of fixed rating')
     parser.add_argument('-ai', '--ai', action='store_true', 
                         help='Use AI to generate ratings based on project content')
+    parser.add_argument('-t', '--test-mode', action='store_true',
+                        help='Enable test mode to see the OpenAI prompt and additional debug info')
     args = parser.parse_args()
     
     # Check for conflicting modes
@@ -86,6 +89,8 @@ def main():
     
     if args.ai:
         print(f"Preparing to submit forms for {len(uris)} projects with AI-GENERATED ratings")
+        if args.test_mode:
+            print("Test mode enabled - you will see OpenAI prompts and additional debug info")
     elif args.auto:
         print(f"Preparing to submit forms for {len(uris)} projects with AUTOMATIC RANDOM ratings (2-4)")
     else:
@@ -99,7 +104,7 @@ def main():
     
     # Submit forms
     results = batch_submit_forms(uris, rating=args.rating, delay=args.delay, 
-                               auto_mode=args.auto, ai_mode=args.ai)
+                               auto_mode=args.auto, ai_mode=args.ai, test_mode=args.test_mode)
     
     # Count successes and failures
     successes = sum(1 for result in results.values() if result.get('success', False))

@@ -147,8 +147,6 @@ Only return the JSON, no additional text.
         # We avoid setting any proxy configuration to prevent issues
         client = OpenAI(
             api_key=openai_api_key,
-            # Don't use any proxy configuration
-            http_client=None
         )
         
         # Call the OpenAI API
