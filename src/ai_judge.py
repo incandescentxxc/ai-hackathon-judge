@@ -77,31 +77,53 @@ def generate_ai_ratings(project_data, test_mode=False):
     
     # Prepare the prompt for the AI
     prompt = f"""
-You are an experienced hackathon judge evaluating a project submission. Please analyze the following project information and rate it on a scale of 1-5 in each category, where:
-1 = Poor
-2 = Below Average
-3 = Average
-4 = Good
-5 = Excellent
+You are a critical and discerning hackathon judge evaluating projects with high standards. Analyze the following project information and rate it on a scale of 1-5 in each category, where:
+1 = Poor (Significant issues or lacks originality)
+2 = Below Average (Major shortcomings)
+3 = Average (Meets basic expectations)
+4 = Good (Above average, but not exceptional)
+5 = Excellent (Truly outstanding, innovative, and exemplary)
+
+Be conservative with your ratings. Reserve scores of 4-5 only for truly impressive projects. Most average projects should receive scores in the 2-3 range.
 
 Project Information:
 {content_str}
 
-Please provide ratings for the following criteria:
-1. Quality of Idea (20%): How original, innovative, and well-conceived is the project idea?
-2. Quality of Code (20%): How technically complex, well-implemented, and clean is the project's code?
-3. Quality of Project (40%): How well-executed is the overall project, including usability, design, and completeness?
-4. Project Impact (20%): How impactful or useful is the project? What potential does it have to solve real problems?
+Please evaluate using these strict criteria:
+
+1. Quality of Idea (20%):
+   - Originality: Is this a novel concept or a copycat of existing solutions?
+   - Innovation: Does it solve a problem in a new way or merely apply known approaches?
+   - Ambition: Is the idea challenging and ambitious, or simple and straightforward?
+   - Problem Definition: Is there a clear, meaningful problem being addressed?
+
+2. Quality of Code/Implementation (20%):
+   - Technical Complexity: Does the project demonstrate advanced technical skills?
+   - Architecture: Is the implementation well-structured or haphazard?
+   - Technical Stack: Is the choice of technologies appropriate and challenging?
+   - Implementation Detail: Based on the description, how thorough is the implementation?
+
+3. Quality of Project Execution (40%):
+   - Completeness: Does the project appear finished or is it merely a concept/prototype?
+   - User Experience: Is the project designed with the end user in mind?
+   - Polish: Does the project show attention to detail and refinement?
+   - Scope: Did the team accomplish an impressive amount given hackathon constraints?
+
+4. Project Impact (20%):
+   - Utility: Does the project solve a real problem people care about?
+   - Scale: Could this solution impact many people or only a small niche?
+   - Feasibility: Is the project realistic and practical for real-world implementation?
+   - Differentiation: Does it stand out among similar solutions?
 
 Return your response in a valid JSON format with just the ratings, like this:
 {{
-  "idea_quality": 4,
-  "code_quality": 3,
-  "project_quality": 4,
-  "impact": 5
+  "idea_quality": 3,
+  "code_quality": 2,
+  "project_quality": 3,
+  "impact": 2
 }}
 
-Only return the JSON, no additional text.
+Only return the JSON, no additional text. Be critical but fair in your assessment.
 """
 
     # In test mode, print the prompt for better observability
@@ -255,4 +277,4 @@ def generate_ratings(uri, test_mode=False):
         return None
     
     # Generate AI ratings using the project data
-    return generate_ai_ratings(project_data, test_mode=test_mode) 
+    return generate_ai_ratings(project_data, test_mode=test_mode)
